@@ -104,14 +104,14 @@
             transition: background-color 0.2s, transform 0.1s; 
         }
         
-        /* The Running No Buttons: Fixed width, no scaling, no stretching */
+        /* SUPER FAST RUNNING BUTTONS: Transition speed changed to 0.05s for instant dodging */
         .running-no {
             position: absolute;
             right: 20px;
             top: 30px;
             width: 100px;
             background-color: #7a7a7a;
-            transition: left 0.1s ease, top 0.1s ease, background-color 0.2s;
+            transition: left 0.05s ease, top 0.05s ease, background-color 0.2s;
             z-index: 10;
             transform: scale(1) !important;
         }
@@ -191,7 +191,7 @@
         #btn-yes-c { left: 20px; bottom: 10px; }
         #btn-no-2 {
             position: absolute; right: 20px; bottom: 10px; width: 100px;
-            background-color: #7a7a7a; transition: left 0.1s ease, top 0.1s ease, background-color 0.2s; z-index: 10;
+            background-color: #7a7a7a; transition: left 0.05s ease, top 0.05s ease, background-color 0.2s; z-index: 10;
             transform: scale(1) !important;
         }
         #btn-no-2:hover { transform: scale(1) !important; background-color: #5a5a5a; }
@@ -388,6 +388,7 @@
             screens[id].style.display = 'block';
         }
 
+        // UPGRADED ESCAPE BOUNDARIES: Buttons leap much further away instantly (-150px to 400px ranges)
         function hookEscape(buttonEl, minX, maxX, minY, maxY) {
             const escapeAction = (e) => {
                 if(e) e.preventDefault();
@@ -424,10 +425,10 @@
             zone.addEventListener('touchmove', handler);
         }
 
-        // Screen 1 -> Screen 2
+        // Screen 1 -> Screen 2 (Extended parameters for giant jumps)
         document.getElementById('start-btn').addEventListener('click', () => {
             showScreen('screen-two');
-            hookEscape(document.getElementById('btn-no-1'), -20, 220, -30, 90);
+            hookEscape(document.getElementById('btn-no-1'), -150, 380, -100, 250);
         });
 
         // Screen 2 -> Screen 3
@@ -444,7 +445,7 @@
         // Screen 4 -> Screen 5
         document.getElementById('next-play-btn').addEventListener('click', () => {
             showScreen('screen-five');
-            hookEscape(document.getElementById('btn-no-2'), -10, 240, -10, 110);
+            hookEscape(document.getElementById('btn-no-2'), -150, 380, -100, 250);
         });
 
         // Screen 5 -> Screen 6
@@ -461,7 +462,7 @@
         // Screen 7 -> Screen 8
         document.getElementById('date-question-text').addEventListener('click', () => {
             showScreen('screen-eight');
-            hookEscape(document.getElementById('btn-no-8'), -20, 220, -30, 90);
+            hookEscape(document.getElementById('btn-no-8'), -150, 380, -100, 250);
         });
 
         // Screen 8 -> Screen 9
@@ -512,7 +513,7 @@
                 });
             }
             box.innerHTML += htmlPayload;
-            hookEscape(document.getElementById('btn-no-10'), -20, 220, -40, 50);
+            hookEscape(document.getElementById('btn-no-10'), -150, 380, -100, 200);
         }
 
         // Screen 10 -> Screen 11
