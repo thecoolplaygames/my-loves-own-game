@@ -208,30 +208,46 @@
             border: 1px dashed #ff4d6d;
         }
 
-        /* SCREEN 9 STYLING: Interactive Love Meter */
-        .meter-container {
+        /* SCREEN 9 STYLING: Interactive Love Slider */
+        .slider-wrapper {
             width: 100%;
-            background-color: #ffe6e6;
-            border-radius: 20px;
-            height: 25px;
-            margin: 25px 0;
-            overflow: hidden;
+            margin: 20px 0;
+            position: relative;
+        }
+        .love-slider {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 15px;
+            border-radius: 10px;
+            background: #ffe6e6;
+            outline: none;
             border: 2px solid #ff4d6d;
             box-sizing: border-box;
-            display: none;
         }
-        .meter-bar {
-            width: 0%;
-            height: 100%;
-            background: linear-gradient(to right, #ff758c, #ff4d6d);
-            transition: width 0.1s linear;
+        /* Custom handle stylings */
+        .love-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: #ff4d6d;
+            cursor: pointer;
+            transition: transform 0.1s;
         }
-        #meter-counter {
-            font-size: 32px;
+        .love-slider::-moz-range-thumb {
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            background: #ff4d6d;
+            cursor: pointer;
+        }
+        #slider-value-display {
+            font-size: 36px;
             font-weight: bold;
             color: #ff4d6d;
             margin-bottom: 10px;
-            min-height: 42px;
         }
 
         /* Screen 10: Reasons Wall Styling */
@@ -332,18 +348,17 @@
         </div>
     </div>
 
-    <!-- SCREEN 9: NEW CHOSEN CONCEPT - Interactive Love Level Meter -->
+    <!-- SCREEN 9: NEW INTERACTIVE LOVE BAR MECHANIC -->
     <div id="screen-nine" class="card screen">
-        <h1>Let's test something... 😉</h1>
-        <p style="font-size: 16px; margin: 0 0 10px 0;">Calculating how much I love you:</p>
+        <h1>how much you love me? 🥺</h1>
         
-        <div id="meter-counter">❤️</div>
+        <div id="slider-value-display">0%</div>
 
-        <div id="meter-box" class="meter-container">
-            <div id="meter-fill" class="meter-bar"></div>
+        <div class="slider-wrapper">
+            <input type="range" min="0" max="100" value="0" class="love-slider" id="love-range-slider">
         </div>
 
-        <button id="start-calc-btn" class="calc-trigger-btn">Calculate Love Levels 📈</button>
+        <button id="slider-continue-btn" style="display: none; margin-top: 10px;">Continue 💞</button>
     </div>
 
     <!-- SCREEN 10: Finished & 1000 Reasons Wall -->
@@ -460,39 +475,52 @@
             showScreen('screen-nine');
         });
 
-        // Screen 9 LOVE LEVEL ENGINE
-        const startCalcBtn = document.getElementById('start-calc-btn');
-        const meterBox = document.getElementById('meter-box');
-        const meterFill = document.getElementById('meter-fill');
-        const meterCounter = document.getElementById('meter-counter');
+        // SCREEN 9: SLIDER ENGINE
+        const slider = document.getElementById('love-range-slider');
+        const display = document.getElementById('slider-value-display');
+        const continueBtn = document.getElementById('slider-continue-btn');
+        let isLocked = false;
 
-        startCalcBtn.addEventListener('click', () => {
-            startCalcBtn.style.display = 'none';
-            meterBox.style.display = 'block';
+        slider.addEventListener('input', () => {
+            if (isLocked) return;
+            display.innerText = slider.value + "%";
             
-            let currentVal = 0;
-            const interval = setInterval(() => {
-                currentVal += Math.floor(Math.random() * 8) + 2; // increments quickly
+            if (slider.value == 100) {
+                continueBtn.style.display = "inline-block";
+            } else {
+                continueBtn.style.display = "none";
+            }
+        });
+
+        // The Magic Flip Feature: If she releases mouse/finger before 100%, it automatically slides full!
+        const forceFullLogic = () => {
+            if (slider.value < 100) {
+                isLocked = true; // prevent interference
+                let current = parseInt(slider.value);
                 
-                if (currentVal <= 100) {
-                    meterFill.style.width = currentVal + '%';
-                    meterCounter.innerHTML = currentVal + '%';
-                } else if (currentVal > 100 && currentVal <= 999) {
-                    // Start breaking the limits
-                    meterFill.style.width = '100%';
-                    meterCounter.innerHTML = currentVal + '% ⚠️';
-                } else {
-                    clearInterval(interval);
-                    meterCounter.innerHTML = "∞% ❤️";
-                    meterCounter.style.fontSize = "26px";
-                    meterCounter.innerHTML = "ERROR: LOVE IS INFINITE!";
-                    
-                    setTimeout(() => {
-                        showScreen('screen-ten');
-                        initReasonsWall();
-                    }, 2200);
-                }
-            }, 40);
+                const forceInterval = setInterval(() => {
+                    if (current < 100) {
+                        current += 2;
+                        if (current > 100) current = 100;
+                        slider.value = current;
+                        display.innerText = current + "%";
+                    } else {
+                        clearInterval(forceInterval);
+                        display.innerText = "100% ❤️";
+                        continueBtn.style.display = "inline-block";
+                        isLocked = false;
+                    }
+                }, 15);
+            }
+        };
+
+        slider.addEventListener('mouseup', forceFullLogic);
+        slider.addEventListener('touchend', forceFullLogic);
+
+        // Screen 9 -> Screen 10
+        continueBtn.addEventListener('click', () => {
+            showScreen('screen-ten');
+            initReasonsWall();
         });
 
         // Screen 10 Reasons Engine
