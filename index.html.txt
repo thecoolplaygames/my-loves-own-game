@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For Kenza</title>
+    <style>
+        body {
+            margin: 0;
+            background: linear-gradient(to bottom, #ffe6e6, #ffb3b3);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+            user-select: none;
+        }
+
+        .card {
+            background: white;
+            padding: 30px 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+            border: 4px solid #ff4d6d;
+            width: 350px;
+            position: relative;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        h1 {
+            color: #ff4d6d;
+            font-size: 24px;
+            margin: 0 0 20px 0;
+        }
+
+        p {
+            color: #4a4a4a;
+            font-size: 18px;
+            margin: 0 0 25px 0;
+        }
+
+        .note {
+            font-size: 14px;
+            color: #7a7a7a;
+            margin-top: -10px;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .signature {
+            display: block;
+            margin-top: 25px;
+            font-size: 12px;
+            color: #7a7a7a;
+            font-style: italic;
+        }
+
+        button, .file-label {
+            background-color: #ff4d6d;
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: transform 0.1s, background-color 0.2s;
+            display: inline-block;
+        }
+
+        button:hover, .file-label:hover {
+            background-color: #ff2a51;
+            transform: scale(1.05);
+        }
+
+        /* Screen States */
+        .screen {
+            display: none;
+            width: 100%;
+        }
+        #screen-one { display: block; }
+
+        /* Shared Relative Containers for Escaping Buttons */
+        .escape-container {
+            position: relative;
+            width: 100%;
+            height: 150px;
+            margin-top: 20px;
+        }
+
+        /* Escaping & Static Button Classes */
+        .static-yes { position: absolute; left: 40px; top: 50px; }
+        .running-no {
+            position: absolute;
+            right: 40px;
+            top: 50px;
+            background-color: #7a7a7a;
+            transition: left 0.1s ease, top 0.1s ease;
+            z-index: 10;
+        }
+        .running-no:hover { background-color: #5a5a5a; }
+
+        /* Dark Spaces (Flashlight screens) */
+        .dark-card {
+            background: #121212 !important;
+            border-color: #333 !important;
+            color: white !important;
+        }
+        .dark-card h1 { color: #ff4d6d; }
+        .dark-card .note { color: #bbb; }
+        
+        .dark-zone {
+            position: relative;
+            width: 100%;
+            height: 250px;
+            background-color: #000;
+            border-radius: 10px;
+            overflow: hidden;
+            cursor: none;
+        }
+        .flashlight-mask {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: black;
+            pointer-events: none;
+            z-index: 5;
+        }
+        .hidden-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 90%;
+        }
+
+        /* Screen 3 Elements */
+        #hidden-content-3 img {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            border: 2px solid #ff4d6d;
+            cursor: pointer;
+            margin-bottom: 8px;
+        }
+        #hidden-content-3 span {
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            background: rgba(255, 77, 109, 0.8);
+            padding: 4px 10px;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        /* Screen 5: Multi-button layout */
+        .love-buttons-grid {
+            position: relative;
+            height: 160px;
+            width: 100%;
+        }
+        .yes-btn-grid { position: absolute; }
+        #btn-yes-a { left: 20px; top: 10px; }
+        #btn-yes-b { right: 20px; top: 10px; }
+        #btn-yes-c { left: 20px; bottom: 10px; }
+        #btn-no-2 {
+            position: absolute; right: 20px; bottom: 10px;
+            background-color: #7a7a7a; transition: left 0.1s ease, top 0.1s ease; z-index: 10;
+        }
+
+        /* Screen 7: Flashlight Text Clack */
+        #hidden-content-7 p {
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            background: rgba(255, 77, 109, 0.2);
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px dashed #ff4d6d;
+        }
+
+        /* Screen 9: Image Upload & Frame Layout */
+        #upload-container {
+            margin-bottom: 20px;
+        }
+        #preview-frame {
+            width: 130px;
+            height: 130px;
+            border: 3px dashed #ff4d6d;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            margin-bottom: 15px;
+            background: #ffe6e6;
+        }
+        #preview-frame img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        #photo-upload { display: none; }
+        #fake-button-disabled {
+            background-color: #d3d3d3;
+            color: #7a7a7a;
+            cursor: not-allowed;
+            border-radius: 25px;
+            padding: 12px 28px;
+            font-size: 14px;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+
+        /* Screen 10: Reasons Wall Styling */
+        .reasons-box {
+            width: 100%;
+            height: 200px;
+            overflow-y: scroll;
+            border: 2px solid #ffe6e6;
+            border-radius: 10px;
+            padding: 10px;
+            box-sizing: border-box;
+            text-align: left;
+            background: #fff0f2;
+            margin-bottom: 20px;
+        }
+        .reasons-box p {
+            font-size: 14px;
+            color: #4a4a4a;
+            margin-bottom: 8px;
+            border-bottom: 1px dashed #ffb3b3;
+            padding-bottom: 4px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SCREEN 1: Welcome Screen -->
+    <div id="screen-one" class="card screen">
+        <h1>Hi Kenza, I knew you gonna be here</h1>
+        <button id="start-btn">Start Game</button>
+        <span class="signature">by: ss the guy who loves you</span>
+    </div>
+
+    <!-- SCREEN 2: The Apology & Escaping Button -->
+    <div id="screen-two" class="card screen">
+        <h1>I'm sorry, okay? 🥺</h1>
+        <div class="escape-container">
+            <button id="btn-yes-1" class="static-yes">Yes</button>
+            <button id="btn-no-1" class="running-no">No</button>
+        </div>
+    </div>
+
+    <!-- SCREEN 3: Dark Flashlight Place -->
+    <div id="screen-three" class="card screen dark-card">
+        <h1>Can you find me?</h1>
+        <span class="note">Note: hold the light to find me</span>
+        <div id="dark-zone-3" class="dark-zone">
+            <div id="flashlight-mask-3" class="flashlight-mask"></div>
+            <div id="hidden-content-3" class="hidden-content">
+                <img src="image_ffd6c3.png" id="find-me-img" alt="Me">
+                <span id="click-me-txt">click on me</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCREEN 4: Cute Tap Screen -->
+    <div id="screen-four" class="card screen">
+        <h1>your tap was so cute ❤️</h1>
+        <button id="next-play-btn">let play another one cutie</button>
+    </div>
+
+    <!-- SCREEN 5: Do you still love me? -->
+    <div id="screen-five" class="card screen">
+        <h1>do you still love me?</h1>
+        <div class="love-buttons-grid">
+            <button class="yes-btn-grid yes-btn-5" id="btn-yes-a">Yes</button>
+            <button class="yes-btn-grid yes-btn-5" id="btn-yes-b">Yes</button>
+            <button class="yes-btn-grid yes-btn-5" id="btn-yes-c">Yes</button>
+            <button id="btn-no-2">No</button>
+        </div>
+    </div>
+
+    <!-- SCREEN 6: Part 2 Confirmation -->
+    <div id="screen-six" class="card screen">
+        <h1>this why i love you</h1>
+        <p>wanna part 2 of the game???</p>
+        <button id="part2-yes-btn">Yes</button>
+    </div>
+
+    <!-- SCREEN 7: Dark Place Part 2 (Date Text Find) -->
+    <div id="screen-seven" class="card screen dark-card">
+        <h1>you know what it means</h1>
+        <span class="note">Note: hold the light to search</span>
+        <div id="dark-zone-7" class="dark-zone">
+            <div id="flashlight-mask-7" class="flashlight-mask"></div>
+            <div id="hidden-content-7" class="hidden-content">
+                <p id="date-question-text">if we had the chance to go on a date will you do it?</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCREEN 8: Date Decision (Escaping No) -->
+    <div id="screen-eight" class="card screen">
+        <h1>Will you? 😊</h1>
+        <div class="escape-container">
+            <button id="btn-yes-8" class="static-yes">Yes</button>
+            <button id="btn-no-8" class="running-no">No</button>
+        </div>
+    </div>
+
+    <!-- SCREEN 9: Upload Photo Frame Screen -->
+    <div id="screen-nine" class="card screen">
+        <h1>wow beautiful i knewed you love me</h1>
+        
+        <div id="preview-frame">
+            <span id="frame-placeholder" style="color: #ff4d6d; font-size: 14px;">Her Frame ✨</span>
+        </div>
+
+        <div id="upload-container">
+            <label for="photo-upload" class="file-label" id="upload-label">upload a photo of the beauty</label>
+            <input type="file" id="photo-upload" accept="image/*">
+        </div>
+
+        <div id="fake-button-disabled">sorry ss but i cant and i love you so much</div>
+    </div>
+
+    <!-- SCREEN 10: Finished & 1000 Reasons Wall -->
+    <div id="screen-ten" class="card screen">
+        <h1 style="font-size: 20px;">finished the game of apologize so happy you want it to play it</h1>
+        
+        <div class="reasons-box" id="reasons-scroller">
+            <h4 style="color: #ff4d6d; margin: 0 0 10px 0; text-align: center;">1000 reasons why i love her</h4>
+            <!-- JavaScript dynamically loops the bulk text below -->
+        </div>
+
+        <p style="font-size: 16px; margin-bottom: 10px;">wanna part 2</p>
+        
+        <div class="escape-container" style="height: 100px;">
+            <button id="btn-yes-10" class="static-yes" style="top: 10px;">Yes</button>
+            <button id="btn-no-10" class="running-no" style="top: 10px;">No</button>
+        </div>
+        <span class="note" style="margin-top: 5px;">note: no button runs from beauty always</span>
+    </div>
+
+    <!-- SCREEN 11: Final Final Promise Loop -->
+    <div id="screen-eleven" class="card screen">
+        <h1>❤️</h1>
+        <p>if i did another trouble then i will make it</p>
+    </div>
+
+
+    <script>
+        // Global Navigation Coordinator
+        const screens = {};
+        document.querySelectorAll('.screen').forEach(scr => { screens[scr.id] = scr; });
+
+        function showScreen(id) {
+            Object.keys(screens).forEach(k => screens[k].style.display = 'none');
+            screens[id].style.display = 'block';
+        }
+
+        // Reusable Escaping Utility
+        function hookEscape(buttonEl, minX, maxX, minY, maxY) {
+            const escapeAction = (e) => {
+                if(e) e.preventDefault();
+                const randomX = Math.floor(Math.random() * (maxX - minX + 1)) + minX;
+                const randomY = Math.floor(Math.random() * (maxY - minY + 1)) + minY;
+                buttonEl.style.left = randomX + 'px';
+                buttonEl.style.top = randomY + 'px';
+            };
+            buttonEl.addEventListener('mouseenter', escapeAction);
+            buttonEl.addEventListener('touchstart', escapeAction);
+        }
+
+        // Flashlight Generator System
+        function setupFlashlight(zoneId, maskId) {
+            const zone = document.getElementById(zoneId);
+            const mask = document.getElementById(maskId);
+            let active = false;
+
+            const handler = (e) => {
+                if (!active) { mask.style.background = 'black'; return; }
+                const rect = zone.getBoundingClientRect();
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                const x = clientX - rect.left;
+                const y = clientY - rect.top;
+                mask.style.background = `radial-gradient(circle 50px at ${x}px ${y}px, transparent 100%, black 100%)`;
+            };
+
+            zone.addEventListener('mousedown', (e) => { active = true; handler(e); });
+            window.addEventListener('mouseup', () => { active = false; mask.style.background = 'black'; });
+            zone.addEventListener('mousemove', handler);
+
+            zone.addEventListener('touchstart', (e) => { active = true; handler(e); });
+            window.addEventListener('touchend', () => { active = false; mask.style.background = 'black'; });
+            zone.addEventListener('touchmove', handler);
+        }
+
+        // --- SEQUENCE CONNECTIONS ---
+
+        // Screen 1 -> Screen 2
+        document.getElementById('start-btn').addEventListener('click', () => {
+            showScreen('screen-two');
+            hookEscape(document.getElementById('btn-no-1'), -20, 220, -30, 90);
+        });
+
+        // Screen 2 -> Screen 3
+        document.getElementById('btn-yes-1').addEventListener('click', () => {
+            showScreen('screen-three');
+            setupFlashlight('dark-zone-3', 'flashlight-mask-3');
+        });
+
+        // Screen 3 -> Screen 4
+        const triggerThreeToFour = () => { showScreen('screen-four'); };
+        document.getElementById('find-me-img').addEventListener('click', triggerThreeToFour);
+        document.getElementById('click-me-txt').addEventListener('click', triggerThreeToFour);
+
+        // Screen 4 -> Screen 5
+        document.getElementById('next-play-btn').addEventListener('click', () => {
+            showScreen('screen-five');
+            hookEscape(document.getElementById('btn-no-2'), -10, 240, -10, 110);
+        });
+
+        // Screen 5 -> Screen 6
+        document.querySelectorAll('.yes-btn-5').forEach(b => {
+            b.addEventListener('click', () => { showScreen('screen-six'); });
+        });
+
+        // Screen 6 -> Screen 7 (Entering New Dark Space)
+        document.getElementById('part2-yes-btn').addEventListener('click', () => {
+            showScreen('screen-seven');
+            setupFlashlight('dark-zone-7', 'flashlight-mask-7');
+        });
+
+        // Screen 7 -> Screen 8
+        document.getElementById('date-question-text').addEventListener('click', () => {
+            showScreen('screen-screen-eight' ? 'screen-eight' : ''); // protective fall-through
+            hookEscape(document.getElementById('btn-no-8'), -20, 220, -30, 90);
+        });
+
+        // Screen 8 -> Screen 9 (Photo Upload Frame Space)
+        document.getElementById('btn-yes-8').addEventListener('click', () => {
+            showScreen('screen-nine');
+        });
+
+        // Screen 9 File Handling Configuration
+        const fileInput = document.getElementById('photo-upload');
+        const framePlaceholder = document.getElementById('frame-placeholder');
+        const previewFrame = document.getElementById('preview-frame');
+
+        fileInput.addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewFrame.innerHTML = `<img src="${e.target.result}" alt="Beauty">`;
+                    // Smooth transition to reasons scroller right after picture loading finishes
+                    setTimeout(() => { showScreen('screen-ten'); initReasonsWall(); }, 1800);
+                }
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // Screen 10 Engine: 1000 Reasons Wall Assembler
+        function initReasonsWall() {
+            const box = document.getElementById('reasons-scroller');
+            
+            // Comprehensive array of qualities
+            const CoreTraits = [
+                "Your breath-taking, natural beauty that brightens up my whole universe.",
+                "The quiet respect and gentleness you accord to everyone around you.",
+                "The pure innocence and kindness inside your golden heart.",
+                "The playful way you talk when you're excited about something.",
+                "Your bright, mesmerizing smile that makes all my worries completely vanish.",
+                "How incredibly smart, independent, and strong you are every day.",
+                "The way you care about the tiniest details and notice small things.",
+                "Your adorable laugh which is easily my favorite sound in the world.",
+                "The elegant and beautiful way you handle yourself in tough moments.",
+                "How fiercely loyal, protective, and deeply loving you are as a partner."
+            ];
+
+            let htmlPayload = "";
+            let counter = 1;
+            // Generates the massive compiled wall of affection dynamically
+            for (let i = 0; i < 100; i++) {
+                CoreTraits.forEach(trait => {
+                    if(counter <= 1000) {
+                        htmlPayload += `<p><b>Reason #${counter}:</b> ${trait}</p>`;
+                        counter++;
+                    }
+                });
+            }
+            box.innerHTML += htmlPayload;
+            hookEscape(document.getElementById('btn-no-10'), -20, 220, -40, 50);
+        }
+
+        // Screen 10 -> Screen 11 Final Promise
+        document.getElementById('btn-yes-10').addEventListener('click', () => {
+            showScreen('screen-eleven');
+        });
+    </script>
+</body>
+</html>
