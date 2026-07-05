@@ -31,6 +31,7 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
+            box-sizing: border-box;
         }
 
         h1 {
@@ -71,9 +72,9 @@
             border-radius: 25px;
             cursor: pointer;
             display: inline-block;
+            box-sizing: border-box;
         }
 
-        /* Only the static elements scale a little bit on hover to look nice */
         #start-btn:hover, .static-yes:hover, .yes-btn-grid:hover, .file-label:hover, #part2-yes-btn:hover, #next-play-btn:hover {
             background-color: #ff2a51;
             transform: scale(1.05);
@@ -90,26 +91,33 @@
         .escape-container {
             position: relative;
             width: 100%;
-            height: 150px;
+            height: 100px;
             margin-top: 20px;
         }
 
-        /* Escaping & Static Button Classes */
-        .static-yes { position: absolute; left: 40px; top: 50px; transition: background-color 0.2s, transform 0.1s; }
+        /* Fixed Width and Initial Alignment for the Side-by-Side Buttons */
+        .static-yes { 
+            position: absolute; 
+            left: 20px; 
+            top: 30px; 
+            width: 100px;
+            transition: background-color 0.2s, transform 0.1s; 
+        }
         
-        /* The Running No Buttons: FIXED so they NEVER scale/change size */
+        /* The Running No Buttons: Fixed width, no scaling, no stretching */
         .running-no {
             position: absolute;
-            right: 40px;
-            top: 50px;
+            right: 20px;
+            top: 30px;
+            width: 100px;
             background-color: #7a7a7a;
             transition: left 0.1s ease, top 0.1s ease, background-color 0.2s;
             z-index: 10;
-            transform: scale(1) !important; /* Forces it to stay normal size */
+            transform: scale(1) !important;
         }
         .running-no:hover { 
             background-color: #5a5a5a;
-            transform: scale(1) !important; /* Extra safety block against size changes */
+            transform: scale(1) !important;
         }
 
         /* Dark Spaces (Flashlight screens) */
@@ -177,12 +185,12 @@
             height: 160px;
             width: 100%;
         }
-        .yes-btn-grid { position: absolute; transition: background-color 0.2s, transform 0.1s; }
+        .yes-btn-grid { position: absolute; width: 100px; transition: background-color 0.2s, transform 0.1s; }
         #btn-yes-a { left: 20px; top: 10px; }
         #btn-yes-b { right: 20px; top: 10px; }
         #btn-yes-c { left: 20px; bottom: 10px; }
         #btn-no-2 {
-            position: absolute; right: 20px; bottom: 10px;
+            position: absolute; right: 20px; bottom: 10px; width: 100px;
             background-color: #7a7a7a; transition: left 0.1s ease, top 0.1s ease, background-color 0.2s; z-index: 10;
             transform: scale(1) !important;
         }
