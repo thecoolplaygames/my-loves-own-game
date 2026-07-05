@@ -70,11 +70,11 @@
             font-weight: bold;
             border-radius: 25px;
             cursor: pointer;
-            transition: transform 0.1s, background-color 0.2s;
             display: inline-block;
         }
 
-        button:hover, .file-label:hover {
+        /* Only the static elements scale a little bit on hover to look nice */
+        #start-btn:hover, .static-yes:hover, .yes-btn-grid:hover, .file-label:hover, #part2-yes-btn:hover, #next-play-btn:hover {
             background-color: #ff2a51;
             transform: scale(1.05);
         }
@@ -95,16 +95,22 @@
         }
 
         /* Escaping & Static Button Classes */
-        .static-yes { position: absolute; left: 40px; top: 50px; }
+        .static-yes { position: absolute; left: 40px; top: 50px; transition: background-color 0.2s, transform 0.1s; }
+        
+        /* The Running No Buttons: FIXED so they NEVER scale/change size */
         .running-no {
             position: absolute;
             right: 40px;
             top: 50px;
             background-color: #7a7a7a;
-            transition: left 0.1s ease, top 0.1s ease;
+            transition: left 0.1s ease, top 0.1s ease, background-color 0.2s;
             z-index: 10;
+            transform: scale(1) !important; /* Forces it to stay normal size */
         }
-        .running-no:hover { background-color: #5a5a5a; }
+        .running-no:hover { 
+            background-color: #5a5a5a;
+            transform: scale(1) !important; /* Extra safety block against size changes */
+        }
 
         /* Dark Spaces (Flashlight screens) */
         .dark-card {
@@ -171,14 +177,16 @@
             height: 160px;
             width: 100%;
         }
-        .yes-btn-grid { position: absolute; }
+        .yes-btn-grid { position: absolute; transition: background-color 0.2s, transform 0.1s; }
         #btn-yes-a { left: 20px; top: 10px; }
         #btn-yes-b { right: 20px; top: 10px; }
         #btn-yes-c { left: 20px; bottom: 10px; }
         #btn-no-2 {
             position: absolute; right: 20px; bottom: 10px;
-            background-color: #7a7a7a; transition: left 0.1s ease, top 0.1s ease; z-index: 10;
+            background-color: #7a7a7a; transition: left 0.1s ease, top 0.1s ease, background-color 0.2s; z-index: 10;
+            transform: scale(1) !important;
         }
+        #btn-no-2:hover { transform: scale(1) !important; background-color: #5a5a5a; }
 
         /* Screen 7: Flashlight Text Clack */
         #hidden-content-7 p {
@@ -345,7 +353,6 @@
         
         <div class="reasons-box" id="reasons-scroller">
             <h4 style="color: #ff4d6d; margin: 0 0 10px 0; text-align: center;">1000 reasons why i love her</h4>
-            <!-- JavaScript dynamically loops the bulk text below -->
         </div>
 
         <p style="font-size: 16px; margin-bottom: 10px;">wanna part 2</p>
@@ -365,7 +372,6 @@
 
 
     <script>
-        // Global Navigation Coordinator
         const screens = {};
         document.querySelectorAll('.screen').forEach(scr => { screens[scr.id] = scr; });
 
@@ -374,7 +380,6 @@
             screens[id].style.display = 'block';
         }
 
-        // Reusable Escaping Utility
         function hookEscape(buttonEl, minX, maxX, minY, maxY) {
             const escapeAction = (e) => {
                 if(e) e.preventDefault();
@@ -387,7 +392,6 @@
             buttonEl.addEventListener('touchstart', escapeAction);
         }
 
-        // Flashlight Generator System
         function setupFlashlight(zoneId, maskId) {
             const zone = document.getElementById(zoneId);
             const mask = document.getElementById(maskId);
@@ -411,8 +415,6 @@
             window.addEventListener('touchend', () => { active = false; mask.style.background = 'black'; });
             zone.addEventListener('touchmove', handler);
         }
-
-        // --- SEQUENCE CONNECTIONS ---
 
         // Screen 1 -> Screen 2
         document.getElementById('start-btn').addEventListener('click', () => {
@@ -442,7 +444,7 @@
             b.addEventListener('click', () => { showScreen('screen-six'); });
         });
 
-        // Screen 6 -> Screen 7 (Entering New Dark Space)
+        // Screen 6 -> Screen 7
         document.getElementById('part2-yes-btn').addEventListener('click', () => {
             showScreen('screen-seven');
             setupFlashlight('dark-zone-7', 'flashlight-mask-7');
@@ -450,18 +452,17 @@
 
         // Screen 7 -> Screen 8
         document.getElementById('date-question-text').addEventListener('click', () => {
-            showScreen('screen-screen-eight' ? 'screen-eight' : ''); // protective fall-through
+            showScreen('screen-eight');
             hookEscape(document.getElementById('btn-no-8'), -20, 220, -30, 90);
         });
 
-        // Screen 8 -> Screen 9 (Photo Upload Frame Space)
+        // Screen 8 -> Screen 9
         document.getElementById('btn-yes-8').addEventListener('click', () => {
             showScreen('screen-nine');
         });
 
-        // Screen 9 File Handling Configuration
+        // Screen 9 File Upload
         const fileInput = document.getElementById('photo-upload');
-        const framePlaceholder = document.getElementById('frame-placeholder');
         const previewFrame = document.getElementById('preview-frame');
 
         fileInput.addEventListener('change', function() {
@@ -470,18 +471,15 @@
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     previewFrame.innerHTML = `<img src="${e.target.result}" alt="Beauty">`;
-                    // Smooth transition to reasons scroller right after picture loading finishes
                     setTimeout(() => { showScreen('screen-ten'); initReasonsWall(); }, 1800);
                 }
                 reader.readAsDataURL(file);
             }
         });
 
-        // Screen 10 Engine: 1000 Reasons Wall Assembler
+        // Screen 10 Reasons Engine
         function initReasonsWall() {
             const box = document.getElementById('reasons-scroller');
-            
-            // Comprehensive array of qualities
             const CoreTraits = [
                 "Your breath-taking, natural beauty that brightens up my whole universe.",
                 "The quiet respect and gentleness you accord to everyone around you.",
@@ -497,7 +495,6 @@
 
             let htmlPayload = "";
             let counter = 1;
-            // Generates the massive compiled wall of affection dynamically
             for (let i = 0; i < 100; i++) {
                 CoreTraits.forEach(trait => {
                     if(counter <= 1000) {
@@ -510,7 +507,7 @@
             hookEscape(document.getElementById('btn-no-10'), -20, 220, -40, 50);
         }
 
-        // Screen 10 -> Screen 11 Final Promise
+        // Screen 10 -> Screen 11
         document.getElementById('btn-yes-10').addEventListener('click', () => {
             showScreen('screen-eleven');
         });
