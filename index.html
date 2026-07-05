@@ -62,7 +62,7 @@
             font-style: italic;
         }
 
-        button, .file-label {
+        button, .scan-trigger-btn {
             background-color: #ff4d6d;
             color: white;
             border: none;
@@ -75,7 +75,7 @@
             box-sizing: border-box;
         }
 
-        #start-btn:hover, .static-yes:hover, .yes-btn-grid:hover, .file-label:hover, #part2-yes-btn:hover, #next-play-btn:hover {
+        #start-btn:hover, .static-yes:hover, .yes-btn-grid:hover, #part2-yes-btn:hover, #next-play-btn:hover, .scan-trigger-btn:hover {
             background-color: #ff2a51;
             transform: scale(1.05);
         }
@@ -104,7 +104,7 @@
             transition: background-color 0.2s, transform 0.1s; 
         }
         
-        /* SUPER FAST RUNNING BUTTONS: Transition speed changed to 0.05s for instant dodging */
+        /* The Running No Buttons */
         .running-no {
             position: absolute;
             right: 20px;
@@ -208,37 +208,51 @@
             border: 1px dashed #ff4d6d;
         }
 
-        /* Screen 9: Image Upload & Frame Layout */
-        #upload-container {
-            margin-bottom: 20px;
-        }
-        #preview-frame {
-            width: 130px;
-            height: 130px;
-            border: 3px dashed #ff4d6d;
-            border-radius: 15px;
+        /* SCREEN 9 NEW STYLING: Interactive Beauty Scanner Layout */
+        .scanner-box {
+            width: 150px;
+            height: 150px;
+            border: 3px solid #ff4d6d;
+            border-radius: 50%;
+            margin: 20px 0;
             display: flex;
             align-items: center;
             justify-content: center;
-            overflow: hidden;
-            margin-bottom: 15px;
+            position: relative;
             background: #ffe6e6;
+            overflow: hidden;
         }
-        #preview-frame img {
+        .scanner-heart {
+            font-size: 50px;
+            animation: pulse 1.2s infinite;
+        }
+        .scan-line {
+            position: absolute;
             width: 100%;
-            height: 100%;
-            object-fit: cover;
+            height: 4px;
+            background: rgba(255, 77, 109, 0.7);
+            box-shadow: 0 0 8px #ff4d6d;
+            top: 0;
+            left: 0;
+            display: none;
+            animation: scanMove 2s linear infinite;
         }
-        #photo-upload { display: none; }
-        #fake-button-disabled {
-            background-color: #d3d3d3;
-            color: #7a7a7a;
-            cursor: not-allowed;
-            border-radius: 25px;
-            padding: 12px 28px;
-            font-size: 14px;
-            margin-top: 10px;
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.15); }
+            100% { transform: scale(1); }
+        }
+        @keyframes scanMove {
+            0% { top: 0%; }
+            50% { top: 100%; }
+            100% { top: 0%; }
+        }
+        #scan-status {
+            font-size: 16px;
             font-weight: bold;
+            color: #ff4d6d;
+            margin-bottom: 15px;
+            min-height: 24px;
         }
 
         /* Screen 10: Reasons Wall Styling */
@@ -339,20 +353,18 @@
         </div>
     </div>
 
-    <!-- SCREEN 9: Upload Photo Frame Screen -->
+    <!-- SCREEN 9: NEW CONCEPT - Interactive Beauty Scanner -->
     <div id="screen-nine" class="card screen">
         <h1>wow beautiful i knewed you love me</h1>
+        <p style="font-size: 15px; margin: 0;">Let me scan your face through the screen... 😉</p>
         
-        <div id="preview-frame">
-            <span id="frame-placeholder" style="color: #ff4d6d; font-size: 14px;">Her Frame ✨</span>
+        <div class="scanner-box">
+            <div id="laser-line" class="scan-line"></div>
+            <div class="scanner-heart">❤️</div>
         </div>
 
-        <div id="upload-container">
-            <label for="photo-upload" class="file-label" id="upload-label">upload a photo of the beauty</label>
-            <input type="file" id="photo-upload" accept="image/*">
-        </div>
-
-        <div id="fake-button-disabled">sorry ss but i cant and i love you so much</div>
+        <div id="scan-status">Ready to scan...</div>
+        <button id="start-scan-btn" class="scan-trigger-btn">Press to Scan 💖</button>
     </div>
 
     <!-- SCREEN 10: Finished & 1000 Reasons Wall -->
@@ -388,7 +400,6 @@
             screens[id].style.display = 'block';
         }
 
-        // UPGRADED ESCAPE BOUNDARIES: Buttons leap much further away instantly (-150px to 400px ranges)
         function hookEscape(buttonEl, minX, maxX, minY, maxY) {
             const escapeAction = (e) => {
                 if(e) e.preventDefault();
@@ -425,7 +436,7 @@
             zone.addEventListener('touchmove', handler);
         }
 
-        // Screen 1 -> Screen 2 (Extended parameters for giant jumps)
+        // Screen 1 -> Screen 2
         document.getElementById('start-btn').addEventListener('click', () => {
             showScreen('screen-two');
             hookEscape(document.getElementById('btn-no-1'), -150, 380, -100, 250);
@@ -470,20 +481,40 @@
             showScreen('screen-nine');
         });
 
-        // Screen 9 File Upload
-        const fileInput = document.getElementById('photo-upload');
-        const previewFrame = document.getElementById('preview-frame');
+        // Screen 9 AUTOMATED SCANNER SYSTEM
+        const startScanBtn = document.getElementById('start-scan-btn');
+        const scanStatus = document.getElementById('scan-status');
+        const laserLine = document.getElementById('laser-line');
 
-        fileInput.addEventListener('change', function() {
-            const file = this.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    previewFrame.innerHTML = `<img src="${e.target.result}" alt="Beauty">`;
-                    setTimeout(() => { showScreen('screen-ten'); initReasonsWall(); }, 1800);
+        startScanBtn.addEventListener('click', () => {
+            startScanBtn.style.display = 'none';
+            laserLine.style.display = 'block';
+            
+            let percentage = 0;
+            const messages = [
+                "Scanning eyes... ✨",
+                "Scanning smile... 🥰",
+                "Analyzing cuteness levels... 📈",
+                "Cuteness overload detected! ⚠️"
+            ];
+            
+            const interval = setInterval(() => {
+                percentage += 5;
+                if (percentage <= 100) {
+                    let msgIndex = Math.floor((percentage / 100) * messages.length);
+                    if (msgIndex >= messages.length) msgIndex = messages.length - 1;
+                    scanStatus.innerHTML = `${messages[msgIndex]} (${percentage}%)`;
+                } else {
+                    clearInterval(interval);
+                    laserLine.style.display = 'none';
+                    scanStatus.innerHTML = "100% MATCH! Error: Too beautiful 😍";
+                    
+                    setTimeout(() => {
+                        showScreen('screen-ten');
+                        initReasonsWall();
+                    }, 2000);
                 }
-                reader.readAsDataURL(file);
-            }
+            }, 150);
         });
 
         // Screen 10 Reasons Engine
